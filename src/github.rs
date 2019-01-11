@@ -44,16 +44,13 @@ impl Github {
                         .build(),
                 )
                 .and_then(move |issue| {
-                    // println!("Crawling {}", issue.number);
-                    let comments: Result<Comments, _> = self
-                        .conn
+                    self.conn
                         .repo(self.owner.clone(), self.repo.clone())
                         .issues()
                         .get(issue.number)
                         .comments()
                         .list(&CommentListOptions::builder().build())
-                        .wait();
-                    Ok((issue, comments?))
+                        .map(|comment| (issue, comment))
                 })
                 .and_then(|(issue, comments)| Ok(Rfc::new(issue, comments))),
         )
